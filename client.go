@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 
-	"github.com/Nerzal/gocloak/v11/pkg/jwx"
+	"github.com/tusdesign/gocloak/v11/pkg/jwx"
 )
 
 type gocloak struct {
@@ -1511,6 +1511,23 @@ func (client *gocloak) GetGroup(ctx context.Context, token, realm, groupID strin
 	resp, err := client.getRequestWithBearerAuth(ctx, token).
 		SetResult(&result).
 		Get(client.getAdminRealmURL(realm, "groups", groupID))
+
+	if err := checkForError(resp, err, errMessage); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetGroupByPath get group with path in realm
+func (client *gocloak) GetGroupByPath(ctx context.Context, token, realm, groupPath string) (*Group, error) {
+	const errMessage = "could not get group"
+
+	var result Group
+
+	resp, err := client.getRequestWithBearerAuth(ctx, token).
+		SetResult(&result).
+		Get(client.getAdminRealmURL(realm, "group-by-path", groupPath))
 
 	if err := checkForError(resp, err, errMessage); err != nil {
 		return nil, err
